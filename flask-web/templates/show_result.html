@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>搜尋結果</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <!-- <link rel="stylesheet" href="{{ url_for('static', filename='myownstyle.css') }}"> -->
+        <link rel="stylesheet" href="../static/myownstyle.css">
+    </head>
+    <body>
+        <div class="container-fluid mb-3 mt-4">
+            <form class="row text-center" action="{{ url_for('search') }}" method="GET">
+                <h5 class="col-1 text-right"><a href="{{ url_for('search_main') }}" class="hide-link">Onion Finder</a></h5>
+                <div class="col-10">
+                    <input id="searchtext" name="searchtext" type="text" style="width:100%" value="{{defaulttext}}">
+                </div>
+                <div class="col-1">
+                    <input style="float:left" id="givesearch" type="submit" value="搜尋" onclick="senddata()">
+                </div>
+                <input type="hidden" name="page" value="0">
+            </form>
+        </div>
+
+        <div class="container">
+            <div class="row">
+            <p class="col">
+                結果數量：{{ thehit }}個
+            </p>
+            <p class="col">
+                花費時間：{{ thetime }}毫秒
+            </p>
+            </div>
+        </div>
+
+        {% for result in search_source %}
+        <div class="container mb-5">
+            <h3 class="row"><a href="{{result['_source']['url']}}">{{ result['_source']['title'] }}</a></h3>
+            <a href="{{result['_source']['url']}}" class="row">{{result['_source']['url']}}</a>
+            <p class="row">
+                {% for onehighlight in result['highlight']['text'] %}
+                    {{ onehighlight | safe}} ......
+                {% endfor %}    
+            </p>
+            <hr>
+        </div>
+        {% else %}
+            <div class="container mb-5">
+                <p class="row">
+                    <h3 class="col text-center">Unbelievable.  No result was found</h3>
+                </p>
+            </div>
+        {% endfor %}
+
+        <div class="container">
+            {% if nowpage*10<thehit %}
+            <div class="row text-center">
+                <p class="col">
+                    第{{ nowpage + 1}}頁
+                </p>
+            </div>
+            {% endif %}
+            <div class="row">
+                {% if nowpage!=0 %}
+                <form class="col text-center" action="{{ url_for('search') }}" method="GET">
+                    <input id="searchtext" name="searchtext" type="hidden" style="width:100%" value="{{defaulttext}}">
+                    <input style="float:left" id="givesearch" type="submit" value="上一頁" >
+                    <input type="hidden" name="page" value="{{nowpage - 1}}">
+                </form>
+                {% endif %}
+                {% if nowpage*10<thehit %}
+                <form class="col text-center" action="{{ url_for('search') }}" method="GET">
+                    <input id="searchtext" name="searchtext" type="hidden" style="width:100%" value="{{defaulttext}}">
+                    <input style="float:right" id="givesearch" type="submit" value="下一頁" >
+                    <input type="hidden" name="page" value="{{nowpage + 1}}">
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+</html>
